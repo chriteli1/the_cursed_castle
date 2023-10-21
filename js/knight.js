@@ -174,34 +174,41 @@ function knight(){
         
     }
 
-    var jumped = false;
+    var jumped = false; //flag to check if a jump occured already in a keypress
 
     function jump(){
         on_air = true;
         jumped = true;
-        var speed = 7, 
-        direction = -1,
+
+        var speed = 8,
+        acceleration = 0.8, 
+        direction = -1, //it's negative because the position is relative to the top (jumping=getting closer to the top) 
         knight = document.getElementById('knight');
+
         var topPos;
-        var jmp_cntr = 0;
-        var lnd_cntr = 0;
         topPos = knight.offsetTop,
         bottomPos = topPos + knight.offsetHeight;
-        knight.style.top = (topPos + speed * direction) + 'px';
-        jumping = setInterval( function(){
+        knight.style.top = (topPos + speed * direction) + 'px'; //move upwards with an initial speed
+
+        var initial_speed = speed;
+
+        jumping = setInterval( function(){ //jumping animation
             topPos = knight.offsetTop,
             bottomPos = topPos + knight.offsetHeight;
+            speed = speed - acceleration;
             knight.style.top = (topPos + speed * direction) + 'px';
-            jmp_cntr++;
-            if(jmp_cntr > speed - 1) {
-                
+
+            if(speed <= acceleration) { //stop jumping when speed is (almost) 0
+
                 clearInterval(jumping);
-                landing = setInterval( function(){
+                landing = setInterval( function(){ //landing animation
                     topPos = knight.offsetTop,
                     bottomPos = topPos + knight.offsetHeight;
+                    speed = speed + acceleration;
                     knight.style.top = (topPos + speed * (direction * (-1))) + 'px';
-                    lnd_cntr++;
-                    if(lnd_cntr > speed) {
+
+                    if(speed >= initial_speed) { //stop moving when speed is equal to initial speed (which happens on the ground because of ideal conditions) 
+
                         on_air = false;
                         clearInterval(landing);
                     }

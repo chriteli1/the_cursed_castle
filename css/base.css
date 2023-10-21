@@ -1,0 +1,39 @@
+body {
+    background-image: url('../img/background.jpg');
+    background-size: 100% 100%;
+  }
+  
+  
+  
+  
+#knight img {
+    display: block;
+    height: 100%;
+    width: 100%;
+    position: relative;
+    bottom: 10%;
+    right: 50%;
+    
+}
+
+.knight_flip{
+  -webkit-transform: scaleX(-1);
+  transform: scaleX(-1);
+}
+
+#knight {
+    position: absolute;
+    bottom: 35px;
+    left: 10px;
+    height: 10%;
+    width: 3%;
+    
+}
+
+#big_mob {
+  position: absolute;
+  bottom: 35px;
+  right: 10px;
+  height: 20%;
+  width: 6%;
+}

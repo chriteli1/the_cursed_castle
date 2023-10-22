@@ -1,5 +1,8 @@
-window.onload = knight();
-window.onload = big_mob();
+window.onload = () => {
+    knight();
+    big_mob();
+    
+}
 
 // class Player {
 //     constructor(speed, position){

@@ -1,6 +1,12 @@
 function knight(){
     var s = true, wr = false, wl = false, j = false, b = false; 
 
+    var knight = document.getElementById('knight');
+
+    knight.style.left = "10px";
+    knight.style.top = "545px";
+
+
     window.onload = setInterval(init, 70);
 
     /*===check button press===*/
@@ -59,19 +65,19 @@ function knight(){
         var timer = 220;
 
         if(stnd_cntr == 0){
-            document.getElementById('knight').src='img/knight_standing/knight_standing2.png';
+            knight.src='img/knight_standing/knight_standing2.png';
             sleep(timer).then(() => { 
                 stnd_cntr = 1;
             });
         }
         else if(stnd_cntr == 1){
-            document.getElementById('knight').src='img/knight_standing/knight_standing3.png';
+            knight.src='img/knight_standing/knight_standing3.png';
             sleep(timer).then(() => {
                 stnd_cntr = 2;
             });
         }
         else if(stnd_cntr == 2){
-            document.getElementById("knight").src="img/knight_standing/knight_standing4.png";
+            knight.src="img/knight_standing/knight_standing4.png";
             sleep(timer).then(() => { 
                 stnd_cntr = 0;
             });
@@ -81,8 +87,7 @@ function knight(){
 
     function walkRight(){
         var speed = 6, // the box will move by <speed> pixels on every step
-        direction = 1, // 1 = move right; -1 = move left
-        knight = document.getElementById('knight');
+        direction = 1; // 1 = move right; -1 = move left
         var i =0;
         var leftPos;
         
@@ -99,8 +104,7 @@ function knight(){
 
 
         var speed = 6, // the box will move by <speed> pixels on every step
-        direction = -1, // 1 = move right; -1 = move left
-        knight = document.getElementById('knight');
+        direction = -1; // 1 = move right; -1 = move left
 
         var leftPos = knight.offsetLeft,
             rightPos = leftPos + knight.offsetWidth;
@@ -118,55 +122,55 @@ function knight(){
         
         
         if(walk_cntr == 0){
-            document.getElementById('knight').src='img/knight_walking/knight_walking1.png';
+            knight.src='img/knight_walking/knight_walking1.png';
             sleep(timer).then(() => { 
                 walk_cntr = 1;
             });
         }
         else if(walk_cntr == 1){
-            document.getElementById('knight').src='img/knight_walking/knight_walking2.png';
+            knight.src='img/knight_walking/knight_walking2.png';
             sleep(timer).then(() => { 
                 walk_cntr = 2;
             });
         }
         else if(walk_cntr == 2){
-            document.getElementById('knight').src='img/knight_walking/knight_walking3.png';
+            knight.src='img/knight_walking/knight_walking3.png';
             sleep(timer).then(() => {
                 walk_cntr = 3;
             });
         }
         else if(walk_cntr == 3){
-            document.getElementById("knight").src="img/knight_walking/knight_walking4.png";
+            knight.src="img/knight_walking/knight_walking4.png";
             sleep(timer).then(() => { 
                 walk_cntr = 4;
             });
         }
         else if(walk_cntr == 4){
-            document.getElementById("knight").src="img/knight_walking/knight_walking5.png";
+            knight.src="img/knight_walking/knight_walking5.png";
             sleep(timer).then(() => { 
                 walk_cntr = 5;
             });
         }
         else if(walk_cntr == 5){
-            document.getElementById("knight").src="img/knight_walking/knight_walking6.png";
+            knight.src="img/knight_walking/knight_walking6.png";
             sleep(timer).then(() => { 
                 walk_cntr = 6;
             });
         }
         else if(walk_cntr == 6){
-            document.getElementById("knight").src="img/knight_walking/knight_walking7.png";
+            knight.src="img/knight_walking/knight_walking7.png";
             sleep(timer).then(() => { 
                 walk_cntr = 7;
             });
         }
         else if(walk_cntr == 7){
-            document.getElementById("knight").src="img/knight_walking/knight_walking8.png";
+            knight.src="img/knight_walking/knight_walking8.png";
             sleep(timer).then(() => { 
                 walk_cntr = 0;
             });
         }
         else{
-            document.getElementById("knight").src="img/knight_walking/knight_walking1.png";
+            knight.src="img/knight_walking/knight_walking1.png";
             sleep(timer).then(() => { 
                 walk_cntr = 0;
             });
@@ -181,9 +185,8 @@ function knight(){
         jumped = true;
 
         var speed = 8,
-        acceleration = 0.8, 
-        direction = -1, //it's negative because the position is relative to the top (jumping=getting closer to the top) 
-        knight = document.getElementById('knight');
+        acceleration = 0.85, 
+        direction = -1; //it's negative because the position is relative to the top (jumping=getting closer to the top) 
 
         var topPos;
         topPos = knight.offsetTop,
@@ -224,27 +227,27 @@ function knight(){
     function block(){
         var timer = 10;
         if (block_cntr == 0){
-            document.getElementById("knight").src="img/knight_block/knight_block1.png";
+            knight.src="img/knight_block/knight_block1.png";
             sleep(timer).then(() => { 
                 block_cntr = 1;
             });
 
         }
         else if (block_cntr == 1){
-            document.getElementById("knight").src="img/knight_block/knight_block2.png";
+            knight.src="img/knight_block/knight_block2.png";
             sleep(timer).then(() => { 
                 block_cntr = 2;
             });
 
         }
         else if (block_cntr == 2){
-            document.getElementById("knight").src="img/knight_block/knight_block3.png";
+            knight.src="img/knight_block/knight_block3.png";
             sleep(timer).then(() => { 
                 block_cntr = 3;
             });
 
         }
-        else if (block_cntr == 3) document.getElementById("knight").src="img/knight_block/knight_block4.png";
+        else if (block_cntr == 3) knight.src="img/knight_block/knight_block4.png";
     }
 
     var on_air = false;
@@ -253,12 +256,12 @@ function knight(){
 
         if(b) block();
         else if(wr && !wl){
-            document.getElementById("knight").classList.remove('knight_flip');
+            knight.classList.remove('knight_flip');
             walkRight();
 
         }
         else if(wl && !wr){
-            document.getElementById("knight").classList.add('knight_flip');
+            knight.classList.add('knight_flip');
             walkLeft();
         }
         else standing();

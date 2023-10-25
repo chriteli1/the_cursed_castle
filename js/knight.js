@@ -1,10 +1,10 @@
-function knight(){
+function knight(position){
     var s = true, wr = false, wl = false, j = false, b = false; 
 
     var knight = document.getElementById('knight');
 
-    knight.style.left = "10px";
-    knight.style.top = "545px";
+    knight.style.left = position[0] + "px";
+    knight.style.top = position[1] + "px";
 
 
     window.onload = setInterval(init, 70);
@@ -61,7 +61,7 @@ function knight(){
     var walk_cntr = 0; //counter for walking animation
     var block_cntr = 0; //counter for blocking animation
 
-    function standing(){
+    function standing(){ //standing animation
         var timer = 220;
 
         if(stnd_cntr == 0){
@@ -85,36 +85,28 @@ function knight(){
             
     }
 
-    function walkRight(){
+
+    function walk(dir){
         var speed = 6, // the box will move by <speed> pixels on every step
-        direction = 1; // 1 = move right; -1 = move left
-        var i =0;
-        var leftPos;
-        
-        walkAnim();
-        
-        leftPos = knight.offsetLeft,
-        rightPos = leftPos + knight.offsetWidth;
-        knight.style.left = (leftPos + speed * direction) + 'px';
-            
-    }
+        direction; // 1 = move right; -1 = move left
 
+        // direction = (dir == "r") ? 1 : (dir == "l") ? -1 : 0; 
 
-    function walkLeft(){
+        if(dir == "r"){
+            direction = 1;
+            knight.classList.remove('flip');
+        }
+        else if( dir == "l"){
+            direction = -1;
+            knight.classList.add('flip');
+        }
+        else direction = 0;
 
-
-        var speed = 6, // the box will move by <speed> pixels on every step
-        direction = -1; // 1 = move right; -1 = move left
-
-        var leftPos = knight.offsetLeft,
-            rightPos = leftPos + knight.offsetWidth;
-            
+        var leftPos = knight.offsetLeft;            
         
         knight.style.left = (leftPos + speed * direction) + 'px';
 
         walkAnim();
-
-        
     }
 
     function walkAnim(){
@@ -256,13 +248,11 @@ function knight(){
 
         if(b) block();
         else if(wr && !wl){
-            knight.classList.remove('knight_flip');
-            walkRight();
+            walk("r");
 
         }
         else if(wl && !wr){
-            knight.classList.add('knight_flip');
-            walkLeft();
+            walk("l");
         }
         else standing();
 

@@ -28,10 +28,16 @@ class Knight{
                                     top: " + this.position[0] + "px; \
                                     left: " + this.position[1] + "px; \
                                     height: 80px; \
-                                    width: 80px;";
+                                    width: 80px;\
+                                    border: black 2px solid";
 
-        this.x = this.knight.offsetLeft;
-        this.y = this.knight.offsetTop;
+        //update entity's coordinates
+        setInterval(() => {
+            this.x = this.knight.offsetLeft;
+            this.y = this.knight.offsetTop;
+            this.width = this.knight.offsetWidth;
+            this.height = this.knight.offsetHeight;
+        }, 70);
 
 
     }

@@ -19,7 +19,17 @@ class Wizard {
         this.html_entity.style.cssText = "position: absolute; \
                                     top: " + this.position[0] + "px; \
                                     left: " + this.position[1] + "px; \
-                                    height: 130px; width: 80px;";
+                                    height: 130px; width: 80px; \
+                                    border: black 2px solid";
+
+
+        //update entity's coordinates
+        setInterval(() => {
+            this.x = this.html_entity.offsetLeft;
+            this.y = this.html_entity.offsetTop;
+            this.width = this.html_entity.offsetWidth;
+            this.height = this.html_entity.offsetHeight;
+        }, 70);
                 
     }
 

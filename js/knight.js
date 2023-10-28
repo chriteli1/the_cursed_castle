@@ -6,84 +6,8 @@ function knight(position){
     knight.style.left = position[0] + "px";
     knight.style.top = position[1] + "px";
 
-    var speed = 6, //walking speed
-    jump_speed = 9; //jumping speed
 
-    // window.onload = setInterval(init, 170);
-
-    var bg_position = initial_bg_position= 80,
-    bg_offset = 5;
-
-
-    function animate(sprite_num/*, block_flag*/){
-        knight.style.backgroundPosition = -(bg_position + 4*bg_offset) + "px -" + bg_offset + "px";
-        // console.log(bg_position);
-        if (bg_position < sprite_num*initial_bg_position) bg_position = bg_position + initial_bg_position;
-        else bg_position = initial_bg_position;
-    }
-
-    var standing_Int = null;
-    function standing(flag) {
-        if(flag){
-            standing_Int = setInterval(() => {
-                knight.style.background = "url('./img/knight\ 3\ idle_big.png') 0px 0px";
-                animate(4/*, false*/);
-            }, 230);
-        }
-        else clearInterval(standing_Int);
-    }
-
-    standing(true);
-
-    var walk_right_TO = null;
-    function walk_right(flag) {
-        if(flag){
-            
-                knight.style.background = "url('./img/knight\ walk\ animation_big.png') 0px 0px";
-                
-                var direction = 1; // the box will move by <speed> pixels on every step
-                
-                knight.classList.remove('flip');
-                
-                var leftPos = knight.offsetLeft;
-                knight.style.left = (leftPos + speed * direction) + 'px';
-
-                animate(8/*, false*/);
-
-            walk_right_TO = setTimeout(function() {
-                walk_right(flag);
-            }, 70);
-        }
-        else clearTimeout(walk_right_TO);
-    }
-
-    var walk_left_TO = null;
-    function walk_left(flag) {
-        if(flag){
-            
-                knight.style.background = "url('./img/knight\ walk\ animation_big.png') 0px 0px";
-                
-                var direction = -1; // the box will move by <speed> pixels on every step
-                
-                knight.classList.add('flip');
-                
-                var leftPos = knight.offsetLeft;
-                knight.style.left = (leftPos + speed * direction) + 'px';
-
-                animate(8/*, false*/);
-
-            walk_left_TO = setTimeout(function() {
-                walk_left(flag);
-            }, 70);
-        }
-        else clearTimeout(walk_left_TO);
-    }
-
-
-
-    var on_air = false; //flag to check if player is already jumping
-    var jumped = false; //flag to check if a jump occured already in a keypress
-
+    window.onload = setInterval(init, 100);
 
     /*===check button press===*/
     onkeydown = (event) => {
@@ -91,42 +15,16 @@ function knight(position){
         if (event.key == 'd') {
             wr = true;
 
-            if(!wl){
-                if(event.repeat) return;
-
-                standing(false);
-                walk_left(false);
-                walk_right(true);
-            }
-
-            
         }
         if(event.key == 'a') {
-            wl = true;       
-
-            if(!wr){
-                if(event.repeat) return; 
-
-                standing(false);
-                walk_right(false);
-                walk_left(true);
-            }
-                           
-            
+            wl = true;
         }
         if(event.key == 'w') {
             j = true;
-            if(!on_air && !jumped) jump();
         }
         if(event.key == ' ') {
-            wl = wr = false;
             b = true;
-            if(event.repeat) return; 
-            standing(false);
-            block(true);
-
         }
-
         
     };
     /*========================*/
@@ -140,28 +38,79 @@ function knight(position){
         }
         else if (event.key == 'd'){
             wr = false;
-            walk_right(false);
-            if(!wl)standing(true);
         
         }
         else if (event.key == 'a'){
             wl = false;
-            walk_left(false);
-            if(!wr)standing(true);
         }
         else if (event.key == ' '){
+            block_cntr = 0;
             b = false;
-            block(false);
-            standing(true);
         }
-        
         
     };
     /*=============================*/
 
+
+
+
+    var speed = 6, //walking speed
+    jump_speed = 9; //jumping speed
+
     function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
+    
+    var bg_position = 0,
+    bg_increment = 80,
+    bg_offset = 5;
+
+
+    function animate(sprite_num, once_flag){ //animate with the given sprites(once_flag is to run animation once and stop on the last sprite)
+
+        knight.style.backgroundPosition = -(bg_position + 4*bg_offset) + "px -" + bg_offset + "px";
+        
+        if (bg_position < (sprite_num-1)*bg_increment)bg_position = bg_position + bg_increment;
+        else if(!once_flag) bg_position = 0;
+               
+    }
+
+    function standing() {
+        
+        knight.style.background = "url('./img/knight\ 3\ idle_big.png') 0px 0px";
+        animate(4, false);
+    }
+
+
+    function walk(dir){
+        var direction; // 1 = move right; -1 = move left
+
+        knight.style.background = "url('./img/knight\ walk\ animation_big.png') 0px 0px";
+
+
+        // direction = (dir == "r") ? 1 : (dir == "l") ? -1 : 0; 
+
+        if(dir == "r"){
+            direction = 1;
+            knight.classList.remove('flip');
+        }
+        else if( dir == "l"){
+            direction = -1;
+            knight.classList.add('flip');
+        }
+        else direction = 0;
+
+        var leftPos = knight.offsetLeft;            
+        
+        knight.style.left = (leftPos + speed * direction) + 'px';
+
+        animate(8, false);
+    }
+
+
+
+    var on_air = false; //flag to check if player is already jumping
+    var jumped = false; //flag to check if a jump occured already in a keypress    
 
 
     function jump(){
@@ -207,46 +156,32 @@ function knight(position){
         
     }
 
-    // function block(){
-    //     var timer = 10;
-    //     if (block_cntr == 0){
-    //         knight.src="img/knight_block/knight_block1.png";
-    //         sleep(timer).then(() => { 
-    //             block_cntr = 1;
-    //         });
+    
+    function block() {
+        knight.style.background = "url('./img/knight\ 3\ block_big.png') 0px 0px";
 
-    //     }
-    //     else if (block_cntr == 1){
-    //         knight.src="img/knight_block/knight_block2.png";
-    //         sleep(timer).then(() => { 
-    //             block_cntr = 2;
-    //         });
+        animate(7, true);
 
-    //     }
-    //     else if (block_cntr == 2){
-    //         knight.src="img/knight_block/knight_block3.png";
-    //         sleep(timer).then(() => { 
-    //             block_cntr = 3;
-    //         });
-
-    //     }
-    //     else if (block_cntr == 3) knight.src="img/knight_block/knight_block4.png";
-    // }
-
-    var block_TO = null;
-    function block(flag) {
-        if(flag){
-            
-                knight.style.background = "url('./img/knight\ 3\ block_big.png') 0px 0px";
-
-                animate(7, true);
-
-            block_TO = setTimeout(function() {
-                block(flag);
-            }, 70);
-        }
-        else clearTimeout(block_TO);
     }
 
+    function init(){ //checks which movement to execute
+
+        if(b) block();
+        else if(wr && !wl){
+            walk("r");
+
+        }
+        else if(wl && !wr){
+            walk("l");
+        }
+        else standing();
+
+        if(j && !on_air && !jumped){
+            jump();
+        }
+        
+        
+
+    }
     
 }

@@ -17,8 +17,8 @@ class Wizard {
 
         //set new entity's position and size
         this.html_entity.style.cssText = "position: absolute; \
-                                    bottom: " + this.position[0] + "px; \
-                                    right: " + this.position[1] + "px; \
+                                    top: " + this.position[0] + "px; \
+                                    left: " + this.position[1] + "px; \
                                     height: 130px; width: 80px;";
                 
     }

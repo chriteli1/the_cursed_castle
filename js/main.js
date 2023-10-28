@@ -6,11 +6,11 @@ function sleep(ms) {
 
 $(function game_loop(){
 
-    knight([20, 545]);
+    knight([20, 535]);
     
     
  
-    var wizard1 = new Wizard(6,"wizard1", [35, 20]);
+    var wizard1 = new Wizard(6,"wizard1", [480, 1200]);
     wizard1.standing();
 
     

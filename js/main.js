@@ -3,13 +3,77 @@ function sleep(ms) {
 }
 
 
-
 $(function game_loop(){
 
-    knight([20, 535]);
+
+
+    var knight = new Knight([535, 20]);
+
+    /*===check button press===*/
+    onkeydown = (event) => {
+        
+        if (event.key == 'd') {
+            knight.wr = true;
+
+        }
+        if(event.key == 'a') {
+            knight.wl = true;
+        }
+        if(event.key == 'w') {
+            knight.j = true;
+        }
+        if(event.key == ' ') {
+            knight.b = true;
+        }
+        if(event.key == 'p') {
+            knight.att = true;
+        }
+        
+    };
+    /*========================*/
+    
+
+    /*===check button release===*/
+    onkeyup = (event) => {
+        if (event.key == 'w'){
+            knight.j = false;
+            knight.jumped = false;
+        }
+        if (event.key == 'd'){
+            knight.wr = false;
+        
+        }
+        if (event.key == 'a'){
+            knight.wl = false;
+        }
+        if (event.key == ' '){
+            knight.b = false;
+        }
+        if(event.key == 'p') {
+            knight.att = false;
+        }
+
+        
+    };
+    /*=============================*/
     
     
- 
+    setInterval(() => {
+        if(knight.b) knight.block();
+        else {
+            if(!knight.att){
+                if(knight.wr && !knight.wl) knight.walk("r");
+                else if(knight.wl && !knight.wr) knight.walk("l");
+                else knight.standing();
+            }
+            else knight.attack();
+        }
+        if(knight.j && !knight.on_air && !knight.jumped){
+            knight.jump();
+        }
+    }, 100);
+
+
     var wizard1 = new Wizard(6,"wizard1", [480, 1200]);
     wizard1.standing();
 

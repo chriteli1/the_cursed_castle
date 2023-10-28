@@ -1,5 +1,5 @@
 function knight(position){
-    var wr = false, wl = false, j = false, b = false; 
+    var wr = false, wl = false, j = false, b = false, att = false; 
 
     var knight = document.getElementById('knight');
 
@@ -25,6 +25,9 @@ function knight(position){
         if(event.key == ' ') {
             b = true;
         }
+        if(event.key == 'p') {
+            att = true;
+        }
         
     };
     /*========================*/
@@ -36,17 +39,21 @@ function knight(position){
             j = false;
             jumped = false;
         }
-        else if (event.key == 'd'){
+        if (event.key == 'd'){
             wr = false;
         
         }
-        else if (event.key == 'a'){
+        if (event.key == 'a'){
             wl = false;
         }
-        else if (event.key == ' '){
+        if (event.key == ' '){
             block_cntr = 0;
             b = false;
         }
+        if(event.key == 'p') {
+            att = false;
+        }
+
         
     };
     /*=============================*/
@@ -61,13 +68,14 @@ function knight(position){
         return new Promise(resolve => setTimeout(resolve, ms));
     }
     
-    var bg_position = 0,
+    var bg_position = 0;
     bg_increment = 80,
-    bg_offset = 5;
+    bg_offset = 3;
 
 
     function animate(sprite_num, once_flag){ //animate with the given sprites(once_flag is to run animation once and stop on the last sprite)
 
+        console.log(bg_position);
         knight.style.backgroundPosition = -(bg_position + 4*bg_offset) + "px -" + bg_offset + "px";
         
         if (bg_position < (sprite_num-1)*bg_increment)bg_position = bg_position + bg_increment;
@@ -164,23 +172,27 @@ function knight(position){
 
     }
 
+    function attack(){
+        knight.style.background = "url('./img/knight\ 3\ improved\ slash\ animation_big.png') 0px 0px";
+
+        animate(10, false);
+    }
+
     function init(){ //checks which movement to execute
 
         if(b) block();
-        else if(wr && !wl){
-            walk("r");
-
+        else {
+            if(!att){
+                if(wr && !wl) walk("r");
+                else if(wl && !wr) walk("l");
+                else standing();
+            }
+            else attack();
         }
-        else if(wl && !wr){
-            walk("l");
-        }
-        else standing();
-
+        
         if(j && !on_air && !jumped){
             jump();
         }
-        
-        
 
     }
     

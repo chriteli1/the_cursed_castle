@@ -1,199 +1,139 @@
-function knight(position){
-    var wr = false, wl = false, j = false, b = false, att = false; 
+class Knight{
 
-    var knight = document.getElementById('knight');
-
-    knight.style.left = position[0] + "px";
-    knight.style.top = position[1] + "px";
-
-
-    window.onload = setInterval(init, 100);
-
-    /*===check button press===*/
-    onkeydown = (event) => {
+    constructor(position){
+        this.wr = this.wl = this.j = this.b = this.att = false; //movement flags
+        this.position = position; //spawn position
         
-        if (event.key == 'd') {
-            wr = true;
 
-        }
-        if(event.key == 'a') {
-            wl = true;
-        }
-        if(event.key == 'w') {
-            j = true;
-        }
-        if(event.key == ' ') {
-            b = true;
-        }
-        if(event.key == 'p') {
-            att = true;
-        }
-        
-    };
-    /*========================*/
-    
+        this.speed = 6, //walking speed
+        this.jump_speed = 9; //jumping speed
 
-    /*===check button release===*/
-    onkeyup = (event) => {
-        if (event.key == 'w'){
-            j = false;
-            jumped = false;
-        }
-        if (event.key == 'd'){
-            wr = false;
-        
-        }
-        if (event.key == 'a'){
-            wl = false;
-        }
-        if (event.key == ' '){
-            block_cntr = 0;
-            b = false;
-        }
-        if(event.key == 'p') {
-            att = false;
-        }
+        this.on_air = false; //flag to check if player is already jumping
+        this.jumped = false; //flag to check if a jump occured already in a keypress
 
-        
-    };
-    /*=============================*/
+        //variables for "animate" method
+        this.bg_position = 0;
+        this.bg_increment = 80,
+        this.bg_offset = 0;
+
+        //"spawn" entity
+        this.knight = document.createElement("div");
+        this.knight.setAttribute("id", "knight");
+
+        var stage = document.getElementById("stage");
+        stage.appendChild(this.knight);
+
+        //set new entity's position and size
+        this.knight.style.cssText = "position: absolute; \
+                                    top: " + this.position[0] + "px; \
+                                    left: " + this.position[1] + "px; \
+                                    height: 80px; \
+                                    width: 80px;";
+
+        this.x = this.knight.offsetLeft;
+        this.y = this.knight.offsetTop;
 
 
-
-
-    var speed = 6, //walking speed
-    jump_speed = 9; //jumping speed
-
-    function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-    
-    var bg_position = 0;
-    bg_increment = 80,
-    bg_offset = 3;
-
-
-    function animate(sprite_num, once_flag){ //animate with the given sprites(once_flag is to run animation once and stop on the last sprite)
-
-        console.log(bg_position);
-        knight.style.backgroundPosition = -(bg_position + 4*bg_offset) + "px -" + bg_offset + "px";
-        
-        if (bg_position < (sprite_num-1)*bg_increment)bg_position = bg_position + bg_increment;
-        else if(!once_flag) bg_position = 0;
-               
     }
 
-    function standing() {
+    //animate with the given sprites(once_flag is to run animation once and stop on the last sprite)
+    animate(sprite_num, once_flag){ 
+
+        // console.log(bg_position);
+        this.knight.style.backgroundPosition = -(this.bg_position + 4*this.bg_offset) + "px -" + this.bg_offset + "px";
         
-        knight.style.background = "url('./img/knight\ 3\ idle_big.png') 0px 0px";
-        animate(4, false);
+        if (this.bg_position < (sprite_num-1)*this.bg_increment)this.bg_position = this.bg_position + this.bg_increment;
+        else if(!once_flag) this.bg_position = 0;
+                
+    }
+
+    standing(){
+        
+        this.knight.style.background = "url('./img/knight\ 3\ idle_big.png') 0px 0px";
+        this.animate(4, false);
     }
 
 
-    function walk(dir){
+    walk(dir){
         var direction; // 1 = move right; -1 = move left
 
-        knight.style.background = "url('./img/knight\ walk\ animation_big.png') 0px 0px";
+        this.knight.style.background = "url('./img/knight\ walk\ animation_big.png') 0px 0px";
 
 
         // direction = (dir == "r") ? 1 : (dir == "l") ? -1 : 0; 
 
         if(dir == "r"){
             direction = 1;
-            knight.classList.remove('flip');
+            this.knight.classList.remove('flip');
         }
         else if( dir == "l"){
             direction = -1;
-            knight.classList.add('flip');
+            this.knight.classList.add('flip');
         }
         else direction = 0;
 
-        var leftPos = knight.offsetLeft;            
+        var leftPos = this.knight.offsetLeft;            
         
-        knight.style.left = (leftPos + speed * direction) + 'px';
+        this.knight.style.left = (leftPos + this.speed * direction) + 'px';
 
-        animate(8, false);
-    }
-
-
-
-    var on_air = false; //flag to check if player is already jumping
-    var jumped = false; //flag to check if a jump occured already in a keypress    
+        this.animate(8, false);
+    }    
 
 
-    function jump(){
-        on_air = true;
-        jumped = true;
+    jump(){
+        this.on_air = true;
+        this.jumped = true;
+
+        var jump_speed = this.jump_speed;
 
         var acceleration = 0.85, 
         direction = -1; //it's negative because the position is relative to the top (jumping=getting closer to the top) 
 
         var topPos;
-        topPos = knight.offsetTop,
-        bottomPos = topPos + knight.offsetHeight;
-        knight.style.top = (topPos + jump_speed * direction) + 'px'; //move upwards with an initial jump_speed
+        topPos = this.knight.offsetTop,
+        this.knight.style.top = (topPos + jump_speed * direction) + 'px'; //move upwards with an initial jump_speed
 
         var initial_speed = jump_speed;
 
-        jumping = setInterval( function(){ //jumping animation
-            topPos = knight.offsetTop,
-            bottomPos = topPos + knight.offsetHeight;
+        var jumping = setInterval(() => { //jumping animation
+            topPos = this.knight.offsetTop,
             jump_speed = jump_speed - acceleration;
-            knight.style.top = (topPos + jump_speed * direction) + 'px';
+            this.knight.style.top = (topPos + jump_speed * direction) + 'px';
 
             if(jump_speed <= acceleration) { //stop jumping when jump_speed is (almost) 0
 
                 clearInterval(jumping);
-                landing = setInterval( function(){ //landing animation
-                    topPos = knight.offsetTop,
-                    bottomPos = topPos + knight.offsetHeight;
+                var landing = setInterval(() => { //landing animation
+                    topPos = this.knight.offsetTop,
                     jump_speed = jump_speed + acceleration;
-                    knight.style.top = (topPos + jump_speed * (direction * (-1))) + 'px';
+                    this.knight.style.top = (topPos + jump_speed * (direction * (-1))) + 'px';
 
                     if(jump_speed >= initial_speed) { //stop moving when speed is equal to initial speed (which happens on the ground because of ideal conditions) 
+                        this.on_air = false;
 
-                        on_air = false;
                         clearInterval(landing);
                     }
                 }, 40);
                 
             }
         }, 40);
-
-        
-        
+   
     }
 
     
-    function block() {
-        knight.style.background = "url('./img/knight\ 3\ block_big.png') 0px 0px";
+    block() {
+        this.knight.style.background = "url('./img/knight\ 3\ block_big.png') 0px 0px";
 
-        animate(7, true);
-
-    }
-
-    function attack(){
-        knight.style.background = "url('./img/knight\ 3\ improved\ slash\ animation_big.png') 0px 0px";
-
-        animate(10, false);
-    }
-
-    function init(){ //checks which movement to execute
-
-        if(b) block();
-        else {
-            if(!att){
-                if(wr && !wl) walk("r");
-                else if(wl && !wr) walk("l");
-                else standing();
-            }
-            else attack();
-        }
-        
-        if(j && !on_air && !jumped){
-            jump();
-        }
+        this.animate(7, true);
 
     }
+
+    attack(){
+        this.knight.style.background = "url('./img/knight\ 3\ improved\ slash\ animation_big.png') 0px 0px";
+
+        this.animate(10, false);
+    }
+
+    
     
 }

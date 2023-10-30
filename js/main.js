@@ -4,14 +4,16 @@ function sleep(ms) {
 
 
 // function to check for collision between two objects
-function collision_check(entity1, entit2) {
+function collision_check(entity1, entity2) {
     return (
-      entity1.x < entit2.x + entit2.width &&
-      entity1.x + entity1.width > entit2.x &&
-      entity1.y < entit2.y + entit2.height &&
-      entity1.y + entity1.height > entit2.y
+        entity1.x < entity2.x + entity2.width &&
+        entity1.x + entity1.width > entity2.x &&
+        entity1.y < entity2.y + entity2.height &&
+        entity1.y + entity1.height > entity2.y
     );
   }
+
+
 
 function contains(outer_entity, inner_entity){
     return outer_entity.x <= inner_entity.x && inner_entity.x + inner_entity.width <= outer_entity.x + outer_entity.width &&
@@ -19,11 +21,10 @@ function contains(outer_entity, inner_entity){
 }
 
 
-$(function game_loop(){
+$(function (){
 
-
-
-    var knight = new Knight([535, 20]);
+    var knight = new Knight([535, 20]); //spawn knight
+    var enemies = []; //initialize enemies array (it will contain every enemy present on stage)
 
     /*===check button press===*/
     onkeydown = (event) => {
@@ -83,32 +84,34 @@ $(function game_loop(){
                 else if(knight.wl && !knight.wr) knight.walk("l");
                 else knight.standing();
             }
-            else knight.attack();
+            else console.log("Hit: ", knight.attack(enemies));
         }
         if(knight.j && !knight.on_air && !knight.jumped){
             knight.jump();
         }
+
     }, 100);
 
 
-    var wizard1 = new Wizard(6,"wizard1", [480, 1200]);
+    var wizard1 = new Wizard(6,"wizard1", [480, 600]);
+    enemies.push(wizard1);
     wizard1.standing();
 
 
     setInterval(() => {
-        console.log("Collision: ", collision_check(wizard1, knight));
+        // console.log("Collision: ", collision_check(wizard1, knight));
         var stage = document.getElementById("stage");
         stage.width = stage.offsetWidth;
         stage.height = stage.offsetHeight;
         stage.x = stage.offsetLeft;
         stage.y = stage.offsetTop;
-        console.log("Out of bounds: ", !contains(stage, knight));
+        // console.log("Out of bounds: ", !contains(stage, knight));
     }, 70);
     
 
     setInterval(() => {
 
-        var move_left = setInterval(function() {
+        var move_left = setInterval(() => {
             wizard1.move("l");
         }, 70);
 

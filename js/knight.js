@@ -28,10 +28,35 @@ class Knight{
                                     top: " + this.position[0] + "px; \
                                     left: " + this.position[1] + "px; \
                                     height: 80px; \
-                                    width: 80px;";
+                                    width: 80px;\
+                                    border: black 2px solid";
 
-        this.x = this.knight.offsetLeft;
-        this.y = this.knight.offsetTop;
+
+        // //add hit check area in front of the player (area where if an enemy is in it, an attack will be successfull)                            
+        // this.front = document.createElement("div");
+        // this.front.setAttribute("id", "knight_front");
+        // this.knight.appendChild(this.front);
+        // this.front.style.cssText = "position: absolute; \
+        //                                    right: 0px; \
+        //                                    height: 100%; \
+        //                                    width: 20%; \
+        //                                    border: black 1px solid;";
+
+
+
+        //update entity's coordinates
+        setInterval(() => {
+            this.x = this.knight.offsetLeft;
+            this.y = this.knight.offsetTop;
+            this.width = this.knight.offsetWidth;
+            this.height = this.knight.offsetHeight;
+
+            // this.front.x = this.front.offsetParent.offsetLeft + this.front.offsetLeft;
+            // this.front.y = this.front.offsetParent.offsetTop;
+            // this.front.width = this.front.offsetWidth;
+            // this.front.height = this.front.offsetHeight;
+
+        }, 70);
 
 
     }
@@ -128,10 +153,14 @@ class Knight{
 
     }
 
-    attack(){
+    attack(enemies) {
         this.knight.style.background = "url('./img/knight\ 3\ improved\ slash\ animation_big.png') 0px 0px";
 
         this.animate(10, false);
+
+        for(let i=0;i<enemies.length;i++){
+            return collision_check(this, enemies[i]);
+        }
     }
 
     

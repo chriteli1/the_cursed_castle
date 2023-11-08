@@ -1,13 +1,31 @@
+// Simple sleep function to add delay whenever is needed
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 
-$(function game_loop(){
+// function to check for collision between two objects
+function collision_check(entity1, entity2) {
+    return (
+        entity1.x < entity2.x + entity2.width &&
+        entity1.x + entity1.width > entity2.x &&
+        entity1.y < entity2.y + entity2.height &&
+        entity1.y + entity1.height > entity2.y
+    );
+  }
 
 
+// function to check if an entity contains another (mainly to check if player is out of bounds)
+function contains(outer_entity, inner_entity){
+    return outer_entity.x <= inner_entity.x && inner_entity.x + inner_entity.width <= outer_entity.x + outer_entity.width &&
+           outer_entity.y <= inner_entity.y && inner_entity.y + inner_entity.height <= outer_entity.y + outer_entity.height;
+}
 
-    var knight = new Knight([535, 20]);
+
+$(function (){
+
+    var knight = new Knight([535, 20]); //spawn knight
+    var enemies = []; //initialize enemies array (it will contain every enemy present on stage)
 
     /*===check button press===*/
     onkeydown = (event) => {
@@ -58,7 +76,9 @@ $(function game_loop(){
     /*=============================*/
     
     
+    /*=========Execute knight's moves=========*/
     setInterval(() => {
+        
         if(knight.b) knight.block();
         else {
             if(!knight.att){
@@ -66,24 +86,39 @@ $(function game_loop(){
                 else if(knight.wl && !knight.wr) knight.walk("l");
                 else knight.standing();
             }
-            else knight.attack();
+            else console.log("Hit: ", knight.attack(enemies));
         }
         if(knight.j && !knight.on_air && !knight.jumped){
             knight.jump();
         }
+
     }, 100);
+    /*=========================================*/
 
 
-    var wizard1 = new Wizard(6,"wizard1", [480, 1200]);
+    //spawn enemy wizard
+    var wizard1 = new Wizard(6,"wizard1", [480, 600]);
+    enemies.push(wizard1);
     wizard1.standing();
 
-    
-    
-    
 
-    setInterval(function() {
 
-        var move_left = setInterval(function() {
+    /*=======Loop to check if player is out of bounds========*/
+    setInterval(() => {
+        // console.log("Collision: ", collision_check(wizard1, knight));
+        var stage = document.getElementById("stage");
+        stage.width = stage.offsetWidth;
+        stage.height = stage.offsetHeight;
+        stage.x = stage.offsetLeft;
+        stage.y = stage.offsetTop;
+        // console.log("Out of bounds: ", !contains(stage, knight));
+    }, 70);
+    /*=========================================*/
+
+    /*==========Wizard animation================*/
+    setInterval(() => {
+
+        var move_left = setInterval(() => {
             wizard1.move("l");
         }, 70);
 
@@ -91,7 +126,7 @@ $(function game_loop(){
 
         sleep(3000).then(() => { 
             clearInterval(move_left);
-            move_right = setInterval(function() {
+            move_right = setInterval(() => {
                 wizard1.move("r");
             }, 70);        
         });
@@ -102,7 +137,7 @@ $(function game_loop(){
         });
 
     }, 10000);
-    
+    /*=========================================*/
 
 
 });

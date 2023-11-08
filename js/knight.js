@@ -31,6 +31,19 @@ class Knight{
                                     width: 80px;\
                                     border: black 2px solid";
 
+        this.health = 100;
+        this.health_bar = document.createElement("div");
+        this.health_bar.setAttribute("id", "health");
+        this.health_bar.style.cssText = "position: absolute; \
+                                        top: -40px; \
+                                        height: 32px; \
+                                        width: 80px; \
+                                        background-size: 100px;";
+
+        this.health_bar.style.background = "no-repeat url('./img/health\ bar.png') 0px 0px/260%";
+        
+        this.knight.appendChild(this.health_bar);
+
 
         // //add hit check area in front of the player (area where if an enemy is in it, an attack will be successfull)                            
         // this.front = document.createElement("div");
@@ -159,7 +172,8 @@ class Knight{
         this.animate(10, false);
 
         for(let i=0;i<enemies.length;i++){
-            return collision_check(this, enemies[i]);
+            if(collision_check(this, enemies[i])) enemies[i].health -= 5;
+            // return collision_check(this, enemies[i]);
         }
     }
 

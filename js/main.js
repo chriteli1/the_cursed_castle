@@ -86,7 +86,8 @@ $(function (){
                 else if(knight.wl && !knight.wr) knight.walk("l");
                 else knight.standing();
             }
-            else console.log("Hit: ", knight.attack(enemies));
+            // else console.log("Hit: ", knight.attack(enemies));
+            else knight.attack(enemies);
         }
         if(knight.j && !knight.on_air && !knight.jumped){
             knight.jump();
@@ -112,6 +113,7 @@ $(function (){
         stage.x = stage.offsetLeft;
         stage.y = stage.offsetTop;
         // console.log("Out of bounds: ", !contains(stage, knight));
+        console.log("Wizard's health: ", wizard1.health);
     }, 70);
     /*=========================================*/
 

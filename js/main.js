@@ -1,3 +1,4 @@
+// Simple sleep function to add delay whenever is needed
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -14,7 +15,7 @@ function collision_check(entity1, entity2) {
   }
 
 
-
+// function to check if an entity contains another (mainly to check if player is out of bounds)
 function contains(outer_entity, inner_entity){
     return outer_entity.x <= inner_entity.x && inner_entity.x + inner_entity.width <= outer_entity.x + outer_entity.width &&
            outer_entity.y <= inner_entity.y && inner_entity.y + inner_entity.height <= outer_entity.y + outer_entity.height;
@@ -75,6 +76,7 @@ $(function (){
     /*=============================*/
     
     
+    /*=========Execute knight's moves=========*/
     setInterval(() => {
         
         if(knight.b) knight.block();
@@ -91,13 +93,17 @@ $(function (){
         }
 
     }, 100);
+    /*=========================================*/
 
 
+    //spawn enemy wizard
     var wizard1 = new Wizard(6,"wizard1", [480, 600]);
     enemies.push(wizard1);
     wizard1.standing();
 
 
+
+    /*=======Loop to check if player is out of bounds========*/
     setInterval(() => {
         // console.log("Collision: ", collision_check(wizard1, knight));
         var stage = document.getElementById("stage");
@@ -107,8 +113,9 @@ $(function (){
         stage.y = stage.offsetTop;
         // console.log("Out of bounds: ", !contains(stage, knight));
     }, 70);
-    
+    /*=========================================*/
 
+    /*==========Wizard animation================*/
     setInterval(() => {
 
         var move_left = setInterval(() => {
@@ -130,6 +137,7 @@ $(function (){
         });
 
     }, 10000);
+    /*=========================================*/
 
 
 });

@@ -23,6 +23,20 @@ class Wizard {
                                     border: black 2px solid";
 
 
+        this.health = 100;
+        // this.health_bar = document.createElement("div");
+        // this.health_bar.setAttribute("id", "health");
+        // this.health_bar.style.cssText = "position: absolute; \
+        //                                 top: -40px; \
+        //                                 height: 32px; \
+        //                                 width: 80px; \
+        //                                 background-size: 100px;";
+
+        // this.health_bar.style.background = "no-repeat url('./img/health\ bar.png') 0px 0px/260%";
+        
+        // new_div.appendChild(this.health_bar);
+
+
         //update entity's coordinates
         setInterval(() => {
             this.x = this.html_entity.offsetLeft;

@@ -100,7 +100,9 @@ $(function (){
     //spawn enemy wizard
     var wizard1 = new Wizard(6,"wizard1", [480, 600]);
     enemies.push(wizard1);
-    wizard1.standing();
+    var wizard_standing = setInterval(() => {
+        wizard1.standing();
+    }, 180);
 
 
 
@@ -120,6 +122,7 @@ $(function (){
     /*==========Wizard animation================*/
     setInterval(() => {
 
+        clearInterval(wizard_standing);
         var move_left = setInterval(() => {
             wizard1.move("l");
         }, 70);
@@ -136,7 +139,11 @@ $(function (){
         
         sleep(6000).then(() => {
             clearInterval(move_right);
+            wizard_standing = setInterval(() => {
+                wizard1.standing();
+            }, 180);
         });
+
 
     }, 10000);
     /*=========================================*/

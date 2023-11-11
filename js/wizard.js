@@ -5,21 +5,24 @@ class Wizard {
         this.id = id; //id to give the html element
         this.stnd_cntr = 0; //counter for standing animation
 
+        //variables for "animate" method
+        this.bg_position = 0;
+        this.bg_increment = 130,
+        this.bg_offset = 0;
+
         //"spawn" entity
-        var new_div = document.createElement("div");
-        this.html_entity = document.createElement("img");
+        this.html_entity = document.createElement("div");
         this.html_entity.setAttribute("id", id);
-        this.html_entity.setAttribute("src", "img/wizard_idle/wizard_idle1.png");
-        new_div.appendChild(this.html_entity);
+        
 
         var stage = document.getElementById("stage");
-        stage.appendChild(new_div);
+        stage.appendChild(this.html_entity);
 
         //set new entity's position and size
         this.html_entity.style.cssText = "position: absolute; \
                                     top: " + this.position[0] + "px; \
                                     left: " + this.position[1] + "px; \
-                                    height: 130px; width: 80px; \
+                                    height: 130px; width: 130px; \
                                     border: black 2px solid";
 
 
@@ -47,56 +50,31 @@ class Wizard {
                 
     }
 
-    standing() {
-        var timer = 120;
-    
-        var stnd_cntr = 0;
-    
-        setInterval( () => {
-            if(stnd_cntr == 0){
-                this.html_entity.src='img/wizard_idle/wizard_idle1.png';
-                sleep(timer).then(() => { 
-                    stnd_cntr = 1;
-                });
-            }
-            else if(stnd_cntr == 1){
-                this.html_entity.src='img/wizard_idle/wizard_idle2.png';
-                sleep(timer).then(() => {
-                    stnd_cntr = 2;
-                });
-            }
-            else if(stnd_cntr == 2){
-                this.html_entity.src='img/wizard_idle/wizard_idle3.png';
-                sleep(timer).then(() => { 
-                    stnd_cntr = 3;
-                });
-            }
-            else if(stnd_cntr == 3){
-                this.html_entity.src='img/wizard_idle/wizard_idle4.png';
-                sleep(timer).then(() => { 
-                    stnd_cntr = 4;
-                });
-            }
-            else if(stnd_cntr == 4){
-                this.html_entity.src='img/wizard_idle/wizard_idle5.png';
-                sleep(timer).then(() => { 
-                    stnd_cntr = 5;
-                });
-            }
-            else if(stnd_cntr == 5){
-                this.html_entity.src='img/wizard_idle/wizard_idle6.png';
-                sleep(timer).then(() => { 
-                    stnd_cntr = 6;
-                });
-            }
-            else {
-                stnd_cntr = 0;
-            }
-        }, 70);
-            
+    /*animate with the given sprites(once_flag is to run animation once and stop on the last sprite, 
+    repeat is an integer that tels the animation to run once and then repeat a part of the animation
+    from <last sprite> - repeat to <last sprite> continously)*/
+    animate(sprite_num, once_flag, repeat){ 
+
+        // console.log(this.bg_position);
+        this.html_entity.style.backgroundPosition = -(this.bg_position + 4*this.bg_offset) + "px -" + this.bg_offset + "px";
+        
+        if (this.bg_position < (sprite_num-1)*this.bg_increment) this.bg_position = this.bg_position + this.bg_increment;
+        else if(!once_flag && !repeat) this.bg_position = 0;
+        else if(repeat) this.bg_position = this.bg_position - repeat*this.bg_increment;
+                
     }
 
+    standing(){
+        
+        this.html_entity.style.background = "url('./img/wizard\ idle.png') 0px 0px";
+        this.animate(10, false, 2);
+    }
+
+
     move(dir){
+
+        this.html_entity.style.background = "url('./img/wizard\ fly\ forward.png') 0px 0px";
+
         // var direction = (dir == "r") ? 1 : (dir == "l") ? -1 : 0; // 1 = move right; -1 = move left
         var direction;
         if(dir == "r"){
@@ -111,6 +89,8 @@ class Wizard {
 
         var leftPos = this.html_entity.offsetLeft;
         this.html_entity.style.left = (leftPos + this.speed * direction) + 'px';
+
+        this.animate(6, false, 1);
         
     }
 

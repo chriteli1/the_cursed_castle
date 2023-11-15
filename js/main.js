@@ -116,12 +116,14 @@ $(function (){
         stage.y = stage.offsetTop;
         // console.log("Out of bounds: ", !contains(stage, knight));
         console.log("Wizard's health: ", wizard1.health);
+        console.log("Knight's health: ", knight.health);
     }, 70);
     /*=========================================*/
 
     /*==========Wizard animation================*/
     setInterval(() => {
 
+        var wizard_attack;
         clearInterval(wizard_standing);
         var move_left = setInterval(() => {
             wizard1.move("l");
@@ -131,18 +133,29 @@ $(function (){
 
         sleep(3000).then(() => { 
             clearInterval(move_left);
+            wizard1.attack();
             move_right = setInterval(() => {
                 wizard1.move("r");
-            }, 70);        
+            }, 70);    
+                
         });
         
         
         sleep(6000).then(() => {
             clearInterval(move_right);
+            wizard1.move("l");
+
+            wizard1.attack();
+            
+        });
+
+        sleep(7450).then(() => {
+            clearInterval(wizard_attack);
             wizard_standing = setInterval(() => {
                 wizard1.standing();
             }, 180);
         });
+
 
 
     }, 10000);

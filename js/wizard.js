@@ -59,8 +59,10 @@ class Wizard {
         this.html_entity.style.backgroundPosition = -(this.bg_position + 4*this.bg_offset) + "px -" + this.bg_offset + "px";
         
         if (this.bg_position < (sprite_num-1)*this.bg_increment) this.bg_position = this.bg_position + this.bg_increment;
-        else if(!once_flag && !repeat) this.bg_position = 0;
-        else if(repeat) this.bg_position = this.bg_position - repeat*this.bg_increment;
+        else if (!once_flag) {
+            if (!repeat) this.bg_position = 0;
+            else  this.bg_position = this.bg_position - repeat*this.bg_increment;
+        }
                 
     }
 
@@ -91,6 +93,54 @@ class Wizard {
         this.html_entity.style.left = (leftPos + this.speed * direction) + 'px';
 
         this.animate(6, false, 1);
+        
+    }
+
+
+    attack() {
+        this.html_entity.style.background = "url('./img/wizard\ attack.png') 0px 0px";
+
+        this.animate(10, true, 0);
+
+        var fireball = document.createElement("div");
+        fireball.setAttribute("id", this.id + "_fireball" + Math.floor(Math.random()*10));
+
+
+        var stage = document.getElementById("stage");
+        stage.appendChild(fireball);
+
+
+        var fireball_position_x = this.x - 30,
+        fireball_position_y = this.y + 10;
+        fireball.style.cssText = "position: absolute; \
+                                  top: " + fireball_position_y + "px; \
+                                  left: " + fireball_position_x + "px;  \
+                                  height: 100px; \
+                                  width: 100px;";
+        
+        fireball.style.background = "url('./img/wizard\ attack.png') -1300px 0px";
+
+        this.fireball_shot(fireball);
+
+        // if(collision_check(this, knight)) knight.health -= 5;
+
+        
+    }
+
+    fireball_shot(fireball){
+
+        var leftPos; 
+        var shot = setInterval(() => {
+
+            leftPos = fireball.offsetLeft;
+            fireball.style.left = (leftPos + 8 * (-1)) + 'px';
+            console.log(leftPos);
+            if(leftPos < -2000 ) { 
+                clearInterval(shot);
+                fireball.remove();
+            }
+
+        }, 70);
         
     }
 

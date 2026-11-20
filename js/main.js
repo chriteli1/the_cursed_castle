@@ -1,10 +1,7 @@
-// Simple sleep function to add delay whenever is needed
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-
-// function to check for collision between two objects
 function collision_check(entity1, entity2) {
     return (
         entity1.x < entity2.x + entity2.width &&
@@ -12,156 +9,91 @@ function collision_check(entity1, entity2) {
         entity1.y < entity2.y + entity2.height &&
         entity1.y + entity1.height > entity2.y
     );
-  }
-
-
-// function to check if an entity contains another (mainly to check if player is out of bounds)
-function contains(outer_entity, inner_entity){
-    return outer_entity.x <= inner_entity.x && inner_entity.x + inner_entity.width <= outer_entity.x + outer_entity.width &&
-           outer_entity.y <= inner_entity.y && inner_entity.y + inner_entity.height <= outer_entity.y + outer_entity.height;
 }
 
+function showGameMessage(message) {
+    var gameMessage = document.getElementById("game-message");
+    gameMessage.textContent = message;
+    gameMessage.classList.add("visible");
+}
 
-$(function (){
+document.addEventListener("DOMContentLoaded", () => {
+    var knight = new Knight([535, 20]);
+    var enemies = [];
+    var gameEnded = false;
 
-    var knight = new Knight([535, 20]); //spawn knight
-    var enemies = []; //initialize enemies array (it will contain every enemy present on stage)
+    window.addEventListener("keydown", (event) => {
+        var key = event.key.toLowerCase();
+        if (key === " ") event.preventDefault();
+        if (gameEnded) return;
 
-    /*===check button press===*/
-    onkeydown = (event) => {
-        
-        if (event.key == 'd') {
-            knight.wr = true;
+        if (key === 'd') knight.wr = true;
+        if (key === 'a') knight.wl = true;
+        if (key === 'w') knight.j = true;
+        if (key === ' ') knight.b = true;
+        if (key === 'p') knight.att = true;
+    });
 
-        }
-        if(event.key == 'a') {
-            knight.wl = true;
-        }
-        if(event.key == 'w') {
-            knight.j = true;
-        }
-        if(event.key == ' ') {
-            knight.b = true;
-        }
-        if(event.key == 'p') {
-            knight.att = true;
-        }
-        
-    };
-    /*========================*/
-    
-
-    /*===check button release===*/
-    onkeyup = (event) => {
-        if (event.key == 'w'){
+    window.addEventListener("keyup", (event) => {
+        var key = event.key.toLowerCase();
+        if (key === 'w') {
             knight.j = false;
             knight.jumped = false;
         }
-        if (event.key == 'd'){
-            knight.wr = false;
-        
-        }
-        if (event.key == 'a'){
-            knight.wl = false;
-        }
-        if (event.key == ' '){
-            knight.b = false;
-        }
-        if(event.key == 'p') {
-            knight.att = false;
-        }
+        if (key === 'd') knight.wr = false;
+        if (key === 'a') knight.wl = false;
+        if (key === ' ') knight.b = false;
+        if (key === 'p') knight.att = false;
+    });
 
-        
-    };
-    /*=============================*/
-    
-    
-    /*=========Execute knight's moves=========*/
     setInterval(() => {
-        
-        if(knight.b) knight.block();
-        else {
-            if(!knight.att){
-                if(knight.wr && !knight.wl) knight.walk("r");
-                else if(knight.wl && !knight.wr) knight.walk("l");
-                else knight.standing();
-            }
-            // else console.log("Hit: ", knight.attack(enemies));
-            else knight.attack(enemies);
-        }
-        if(knight.j && !knight.on_air && !knight.jumped){
-            knight.jump();
-        }
+        if (knight.dead) return;
 
+        if (knight.b) knight.block();
+        else if (!knight.att) {
+            if (knight.wr && !knight.wl) knight.walk("r");
+            else if (knight.wl && !knight.wr) knight.walk("l");
+            else knight.standing();
+        } else knight.attack(enemies);
+
+        if (knight.j && !knight.on_air && !knight.jumped) knight.jump();
     }, 100);
-    /*=========================================*/
 
-
-    //spawn enemy wizard
-    var wizard1 = new Wizard(6,"wizard1", [480, 600]);
+    var wizard1 = new Wizard(6, "wizard1", [480, 600]);
     enemies.push(wizard1);
-    var wizard_standing = setInterval(() => {
-        wizard1.standing();
+    var wizardStanding = setInterval(() => {
+        if (!wizard1.dead) wizard1.standing();
     }, 180);
 
+    async function wizardTurn() {
+        if (wizard1.dead || knight.dead) return;
+        clearInterval(wizardStanding);
 
+        var moveLeft = setInterval(() => wizard1.move("l"), 70);
+        await sleep(3000);
+        clearInterval(moveLeft);
+        if (wizard1.dead || knight.dead) return;
 
-    /*=======Loop to check if player is out of bounds========*/
+        wizard1.attack(knight);
+        var moveRight = setInterval(() => wizard1.move("r"), 70);
+        await sleep(3000);
+        clearInterval(moveRight);
+        if (wizard1.dead || knight.dead) return;
+
+        wizard1.move("l");
+        wizard1.attack(knight);
+        await sleep(1450);
+        if (wizard1.dead || knight.dead) return;
+
+        wizardStanding = setInterval(() => wizard1.standing(), 180);
+    }
+
+    setInterval(wizardTurn, 10000);
+
     setInterval(() => {
-        // console.log("Collision: ", collision_check(wizard1, knight));
-        var stage = document.getElementById("stage");
-        stage.width = stage.offsetWidth;
-        stage.height = stage.offsetHeight;
-        stage.x = stage.offsetLeft;
-        stage.y = stage.offsetTop;
-        // console.log("Out of bounds: ", !contains(stage, knight));
-        console.log("Wizard's health: ", wizard1.health);
-        console.log("Knight's health: ", knight.health);
-    }, 70);
-    /*=========================================*/
-
-    /*==========Wizard animation================*/
-    setInterval(() => {
-
-        var wizard_attack;
-        clearInterval(wizard_standing);
-        var move_left = setInterval(() => {
-            wizard1.move("l");
-        }, 70);
-
-        var move_right = null;
-
-        sleep(3000).then(() => { 
-            clearInterval(move_left);
-            wizard1.attack();
-            move_right = setInterval(() => {
-                wizard1.move("r");
-            }, 70);    
-                
-        });
-        
-        
-        sleep(6000).then(() => {
-            clearInterval(move_right);
-            wizard1.move("l");
-
-            wizard1.attack();
-            
-        });
-
-        sleep(7450).then(() => {
-            clearInterval(wizard_attack);
-            wizard_standing = setInterval(() => {
-                wizard1.standing();
-            }, 180);
-        });
-
-
-
-    }, 10000);
-    /*=========================================*/
-
-
+        if (!gameEnded && (knight.dead || wizard1.dead)) {
+            gameEnded = true;
+            knight.wr = knight.wl = knight.j = knight.b = knight.att = false;
+        }
+    }, 100);
 });
-
-    

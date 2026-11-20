@@ -4,6 +4,7 @@ class Wizard {
         this.position = position; //initial entity's position
         this.id = id; //id to give the html element
         this.stnd_cntr = 0; //counter for standing animation
+        this.dead = false;
 
         //variables for "animate" method
         this.bg_position = 0;
@@ -22,32 +23,27 @@ class Wizard {
         this.html_entity.style.cssText = "position: absolute; \
                                     top: " + this.position[0] + "px; \
                                     left: " + this.position[1] + "px; \
-                                    height: 130px; width: 130px; \
-                                    border: black 2px solid";
+                                    height: 130px; width: 130px;";
 
 
         this.health = 100;
-        // this.health_bar = document.createElement("div");
-        // this.health_bar.setAttribute("id", "health");
-        // this.health_bar.style.cssText = "position: absolute; \
-        //                                 top: -40px; \
-        //                                 height: 32px; \
-        //                                 width: 80px; \
-        //                                 background-size: 100px;";
+        this.maxHealth = 100;
+        this.health_bar = document.createElement("div");
+        this.health_bar.className = "health-bar";
+        this.health_fill = document.createElement("div");
+        this.health_fill.className = "health-bar-fill";
+        this.health_bar.appendChild(this.health_fill);
+        this.html_entity.appendChild(this.health_bar);
+        this.updateHealthBar();
+    }
 
-        // this.health_bar.style.background = "no-repeat url('./img/health\ bar.png') 0px 0px/260%";
-        
-        // new_div.appendChild(this.health_bar);
+    get x() { return this.html_entity.offsetLeft; }
+    get y() { return this.html_entity.offsetTop; }
+    get width() { return this.html_entity.offsetWidth; }
+    get height() { return this.html_entity.offsetHeight; }
 
-
-        //update entity's coordinates
-        setInterval(() => {
-            this.x = this.html_entity.offsetLeft;
-            this.y = this.html_entity.offsetTop;
-            this.width = this.html_entity.offsetWidth;
-            this.height = this.html_entity.offsetHeight;
-        }, 70);
-                
+    updateHealthBar(){
+        this.health_fill.style.width = (this.health / this.maxHealth * 100) + "%";
     }
 
     /*animate with the given sprites(once_flag is to run animation once and stop on the last sprite, 
@@ -68,14 +64,15 @@ class Wizard {
 
     standing(){
         
-        this.html_entity.style.background = "url('./img/wizard\ idle.png') 0px 0px";
+        this.html_entity.style.background = 'url("./img/wizard idle.png") 0px 0px';
         this.animate(10, false, 2);
     }
 
 
     move(dir){
+        if (this.dead) return;
 
-        this.html_entity.style.background = "url('./img/wizard\ fly\ forward.png') 0px 0px";
+        this.html_entity.style.background = 'url("./img/wizard fly forward.png") 0px 0px';
 
         // var direction = (dir == "r") ? 1 : (dir == "l") ? -1 : 0; // 1 = move right; -1 = move left
         var direction;
@@ -90,58 +87,68 @@ class Wizard {
         else direction = 0;
 
         var leftPos = this.html_entity.offsetLeft;
-        this.html_entity.style.left = (leftPos + this.speed * direction) + 'px';
+        var stage = document.getElementById("stage");
+        var maxLeft = stage.clientWidth - this.width;
+        this.html_entity.style.left = Math.max(0, Math.min(maxLeft, leftPos + this.speed * direction)) + 'px';
 
         this.animate(6, false, 1);
         
     }
 
 
-    attack() {
-        this.html_entity.style.background = "url('./img/wizard\ attack.png') 0px 0px";
-
+    attack(target) {
+        if (this.dead) return;
+        this.html_entity.style.background = 'url("./img/wizard attack.png") 0px 0px';
+        this.bg_position = 0;
         this.animate(10, true, 0);
 
+        var direction = target.x < this.x ? -1 : 1;
+        if (direction < 0) this.html_entity.classList.remove("flip");
+        else this.html_entity.classList.add("flip");
+
         var fireball = document.createElement("div");
-        fireball.setAttribute("id", this.id + "_fireball" + Math.floor(Math.random()*10));
-
-
         var stage = document.getElementById("stage");
         stage.appendChild(fireball);
 
-
-        var fireball_position_x = this.x - 30,
-        fireball_position_y = this.y + 10;
-        fireball.style.cssText = "position: absolute; \
-                                  top: " + fireball_position_y + "px; \
-                                  left: " + fireball_position_x + "px;  \
-                                  height: 100px; \
-                                  width: 100px;";
+        fireball.className = "fireball";
+        fireball.style.top = (this.y + 15) + "px";
+        fireball.style.left = (this.x + (direction < 0 ? -40 : this.width - 20)) + "px";
         
-        fireball.style.background = "url('./img/wizard\ attack.png') -1300px 0px";
-
-        this.fireball_shot(fireball);
-
-        // if(collision_check(this, knight)) knight.health -= 5;
-
-        
+        this.fireball_shot(fireball, target, direction);
     }
 
-    fireball_shot(fireball){
-
-        var leftPos; 
+    fireball_shot(fireball, target, direction){
+        var stage = document.getElementById("stage");
         var shot = setInterval(() => {
+            var leftPos = fireball.offsetLeft + 8 * direction;
+            fireball.style.left = leftPos + 'px';
+            fireball.x = leftPos;
+            fireball.y = fireball.offsetTop;
+            fireball.width = fireball.offsetWidth;
+            fireball.height = fireball.offsetHeight;
 
-            leftPos = fireball.offsetLeft;
-            fireball.style.left = (leftPos + 8 * (-1)) + 'px';
-            console.log(leftPos);
-            if(leftPos < -2000 ) { 
+            var hitTarget = collision_check(fireball, target);
+            if (target.dead || this.dead || hitTarget) {
+                clearInterval(shot);
+                fireball.remove();
+                if (!target.dead && !this.dead && hitTarget) target.takeDamage(20);
+            } else if (leftPos + fireball.offsetWidth < 0 || leftPos > stage.clientWidth) {
                 clearInterval(shot);
                 fireball.remove();
             }
-
-        }, 70);
+        }, 35);
         
+    }
+
+    takeDamage(amount){
+        if (this.dead) return;
+        this.health = Math.max(0, this.health - amount);
+        this.updateHealthBar();
+        if (this.health === 0) {
+            this.dead = true;
+            this.html_entity.remove();
+            showGameMessage("You win! Refresh to play again.");
+        }
     }
 
 };

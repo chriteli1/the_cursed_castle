@@ -36,6 +36,11 @@ body {
   transition: width 100ms linear;
 }
 
+.flip .health-bar {
+  -webkit-transform: scaleX(-1);
+  transform: scaleX(-1);
+}
+
 .fireball {
   position: absolute;
   z-index: 1;

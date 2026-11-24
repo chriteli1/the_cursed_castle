@@ -1,7 +1,3 @@
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 function collision_check(entity1, entity2) {
     return (
         entity1.x < entity2.x + entity2.width &&
@@ -49,12 +45,14 @@ document.addEventListener("DOMContentLoaded", () => {
     setInterval(() => {
         if (knight.dead) return;
 
-        if (knight.b) knight.block();
-        else if (!knight.att) {
-            if (knight.wr && !knight.wl) knight.walk("r");
-            else if (knight.wl && !knight.wr) knight.walk("l");
-            else knight.standing();
-        } else knight.attack(enemies);
+        if (!knight.attacking) {
+            if (knight.b) knight.block();
+            else if (!knight.att) {
+                if (knight.wr && !knight.wl) knight.walk("r");
+                else if (knight.wl && !knight.wr) knight.walk("l");
+                else knight.standing();
+            } else knight.attack(enemies);
+        }
 
         if (knight.j && !knight.on_air && !knight.jumped) knight.jump();
     }, 100);
@@ -62,33 +60,55 @@ document.addEventListener("DOMContentLoaded", () => {
     var wizard1 = new Wizard(6, "wizard1", [480, 600]);
     enemies.push(wizard1);
     var wizardStanding = setInterval(() => {
-        if (!wizard1.dead) wizard1.standing();
+        if (!wizard1.dead && !wizard1.moving && !wizard1.attacking) wizard1.standing();
     }, 180);
 
-    async function wizardTurn() {
+    var wizardAttackReady = true;
+    var patrolDirection = -1;
+    var nextRelativeMoveAt = Date.now() + 4000;
+    var relativeMoveUntil = 0;
+    setInterval(() => {
         if (wizard1.dead || knight.dead) return;
-        clearInterval(wizardStanding);
+        if (wizard1.attacking) {
+            wizard1.moving = false;
+            return;
+        }
 
-        var moveLeft = setInterval(() => wizard1.move("l"), 70);
-        await sleep(3000);
-        clearInterval(moveLeft);
-        if (wizard1.dead || knight.dead) return;
+        var distance = knight.x - wizard1.x;
+        var absoluteDistance = Math.abs(distance);
+        var now = Date.now();
+        var stage = document.getElementById("stage");
+        var maxLeft = stage.clientWidth - wizard1.width;
 
-        wizard1.attack(knight);
-        var moveRight = setInterval(() => wizard1.move("r"), 70);
-        await sleep(3000);
-        clearInterval(moveRight);
-        if (wizard1.dead || knight.dead) return;
+        if (wizard1.x <= 0 && patrolDirection < 0) {
+            patrolDirection = 1;
+        } else if (wizard1.x >= maxLeft && patrolDirection > 0) {
+            patrolDirection = -1;
+        }
 
-        wizard1.move("l");
-        wizard1.attack(knight);
-        await sleep(1450);
-        if (wizard1.dead || knight.dead) return;
+        if (now >= nextRelativeMoveAt) {
+            nextRelativeMoveAt = now + 5000;
+            if (absoluteDistance > 400) relativeMoveUntil = now + 1200;
+        }
 
-        wizardStanding = setInterval(() => wizard1.standing(), 180);
-    }
+        var moveDirection = patrolDirection;
+        if (now < relativeMoveUntil && absoluteDistance > 220) {
+            moveDirection = distance < 0 ? -1 : 1;
+        } else {
+            relativeMoveUntil = 0;
+        }
 
-    setInterval(wizardTurn, 10000);
+        wizard1.moving = true;
+        wizard1.move(moveDirection < 0 ? "l" : "r");
+
+        if (absoluteDistance < 700 && wizardAttackReady) {
+            wizardAttackReady = false;
+            wizard1.attack(knight);
+            setTimeout(() => {
+                wizardAttackReady = true;
+            }, 2200);
+        }
+    }, 70);
 
     setInterval(() => {
         if (!gameEnded && (knight.dead || wizard1.dead)) {

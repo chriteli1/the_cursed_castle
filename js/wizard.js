@@ -5,6 +5,8 @@ class Wizard {
         this.id = id; //id to give the html element
         this.stnd_cntr = 0; //counter for standing animation
         this.dead = false;
+        this.moving = false;
+        this.attacking = false;
 
         //variables for "animate" method
         this.bg_position = 0;
@@ -97,10 +99,27 @@ class Wizard {
 
 
     attack(target) {
-        if (this.dead) return;
+        if (this.dead || this.attacking) return;
+        this.attacking = true;
         this.html_entity.style.background = 'url("./img/wizard attack.png") 0px 0px';
         this.bg_position = 0;
         this.animate(10, true, 0);
+
+        var attackFrame = 0;
+        var attackAnimation = setInterval(() => {
+            if (this.dead) {
+                clearInterval(attackAnimation);
+                this.attacking = false;
+                return;
+            }
+
+            this.animate(10, true, 0);
+            attackFrame++;
+            if (attackFrame >= 9) {
+                clearInterval(attackAnimation);
+                this.attacking = false;
+            }
+        }, 70);
 
         var direction = target.x < this.x ? -1 : 1;
         if (direction < 0) this.html_entity.classList.remove("flip");
@@ -111,7 +130,7 @@ class Wizard {
         stage.appendChild(fireball);
 
         fireball.className = "fireball";
-        fireball.style.top = (this.y + 15) + "px";
+        fireball.style.top = (this.y + 45) + "px";
         fireball.style.left = (this.x + (direction < 0 ? -40 : this.width - 20)) + "px";
         
         this.fireball_shot(fireball, target, direction);
@@ -120,7 +139,7 @@ class Wizard {
     fireball_shot(fireball, target, direction){
         var stage = document.getElementById("stage");
         var shot = setInterval(() => {
-            var leftPos = fireball.offsetLeft + 8 * direction;
+            var leftPos = fireball.offsetLeft + 4 * direction;
             fireball.style.left = leftPos + 'px';
             fireball.x = leftPos;
             fireball.y = fireball.offsetTop;
@@ -131,7 +150,7 @@ class Wizard {
             if (target.dead || this.dead || hitTarget) {
                 clearInterval(shot);
                 fireball.remove();
-                if (!target.dead && !this.dead && hitTarget) target.takeDamage(20);
+                if (!target.dead && !this.dead && hitTarget) target.takeDamage(20, direction);
             } else if (leftPos + fireball.offsetWidth < 0 || leftPos > stage.clientWidth) {
                 clearInterval(shot);
                 fireball.remove();

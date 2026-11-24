@@ -5,6 +5,8 @@ class Knight{
         this.position = position; //spawn position
         this.facing = "r";
         this.attackCooldown = 0;
+        this.attacking = false;
+        this.blocking = false;
         this.dead = false;
 
         this.speed = 6, //walking speed
@@ -64,17 +66,21 @@ class Knight{
     }
 
     standing(){
-        
+        if (this.blocking) this.bg_position = 0;
+        this.blocking = false;
         this.knight.style.background = 'url("./img/knight 3 idle_big.png") 0px 0px';
         this.animate(4, false);
     }
 
 
     walk(dir){
+        if (this.b) return;
+
         var direction; // 1 = move right; -1 = move left
 
+        if (this.blocking) this.bg_position = 0;
+        this.blocking = false;
         this.knight.style.background = 'url("./img/knight walk animation_big.png") 0px 0px';
-
 
         // direction = (dir == "r") ? 1 : (dir == "l") ? -1 : 0; 
 
@@ -143,6 +149,10 @@ class Knight{
 
     
     block() {
+        if (!this.blocking) {
+            this.bg_position = 0;
+            this.blocking = true;
+        }
         this.knight.style.background = 'url("./img/knight 3 block_big.png") 0px 0px';
 
         this.animate(7, true);
@@ -150,29 +160,55 @@ class Knight{
     }
 
     attack(enemies) {
-        if (this.dead) return;
-        this.knight.style.background = 'url("./img/knight 3 improved slash animation_big.png") 0px 0px';
-        this.animate(10, false);
-
+        if (this.dead || this.attacking) return;
+        if (this.blocking) this.bg_position = 0;
+        this.blocking = false;
         var now = Date.now();
         if (now < this.attackCooldown) return;
-        this.attackCooldown = now + 500;
 
-        var hitbox = {
-            x: this.facing === "r" ? this.x + this.width - 10 : this.x - 50,
-            y: this.y + 10,
-            width: 60,
-            height: this.height - 20
-        };
-        for(let i = 0; i < enemies.length; i++){
-            if (!enemies[i].dead && collision_check(hitbox, enemies[i])) {
-                enemies[i].takeDamage(25);
+        this.attackCooldown = now + 500;
+        this.attacking = true;
+        this.knight.style.background = 'url("./img/knight 3 improved slash animation_big.png") 0px 0px';
+        this.bg_position = 0;
+        this.animate(10, true);
+
+        var attackFrame = 0;
+        var attackAnimation = setInterval(() => {
+            if (this.dead) {
+                clearInterval(attackAnimation);
+                this.attacking = false;
+                return;
             }
-        }
+
+            this.animate(10, true);
+            attackFrame++;
+            if (attackFrame === 5) {
+                var hitbox = {
+                    x: this.facing === "r" ? this.x + this.width - 10 : this.x - 50,
+                    y: this.y + 10,
+                    width: 60,
+                    height: this.height - 20
+                };
+                for (let i = 0; i < enemies.length; i++) {
+                    if (!enemies[i].dead && collision_check(hitbox, enemies[i])) {
+                        enemies[i].takeDamage(25);
+                    }
+                }
+            }
+            if (attackFrame >= 9) {
+                clearInterval(attackAnimation);
+                this.attacking = false;
+            }
+        }, 50);
     }
 
-    takeDamage(amount){
-        if (this.dead || this.b) return;
+    takeDamage(amount, incomingDirection){
+        if (this.dead) return;
+        if (this.b && (
+            (this.facing === "l" && incomingDirection > 0) ||
+            (this.facing === "r" && incomingDirection < 0)
+        )) return;
+
         this.health = Math.max(0, this.health - amount);
         this.updateHealthBar();
         if (this.health === 0) {

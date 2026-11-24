@@ -1,5 +1,7 @@
 class Wizard {
     constructor(speed, id, position){
+        this.baseSpeed = speed;
+        this.scale = 1;
         this.speed = speed;
         this.position = position; //initial entity's position
         this.id = id; //id to give the html element
@@ -10,7 +12,7 @@ class Wizard {
 
         //variables for "animate" method
         this.bg_position = 0;
-        this.bg_increment = 130,
+        this.bg_increment = 130;
         this.bg_offset = 0;
 
         //"spawn" entity
@@ -44,6 +46,18 @@ class Wizard {
     get width() { return this.html_entity.offsetWidth; }
     get height() { return this.html_entity.offsetHeight; }
 
+    setScale(scale){
+        this.scale = scale;
+        this.speed = this.baseSpeed * scale;
+        this.bg_increment = 130 * scale;
+        this.bg_position = 0;
+        this.html_entity.style.width = (130 * scale) + "px";
+        this.html_entity.style.height = (130 * scale) + "px";
+        this.health_bar.style.top = (-16 * scale) + "px";
+        this.health_bar.style.height = (9 * scale) + "px";
+        this.health_bar.style.borderWidth = scale + "px";
+    }
+
     updateHealthBar(){
         this.health_fill.style.width = (this.health / this.maxHealth * 100) + "%";
     }
@@ -54,6 +68,7 @@ class Wizard {
     animate(sprite_num, once_flag, repeat){ 
 
         // console.log(this.bg_position);
+        this.html_entity.style.backgroundSize = "auto 100%";
         this.html_entity.style.backgroundPosition = -(this.bg_position + 4*this.bg_offset) + "px -" + this.bg_offset + "px";
         
         if (this.bg_position < (sprite_num-1)*this.bg_increment) this.bg_position = this.bg_position + this.bg_increment;
@@ -130,8 +145,12 @@ class Wizard {
         stage.appendChild(fireball);
 
         fireball.className = "fireball";
-        fireball.style.top = (this.y + 45) + "px";
-        fireball.style.left = (this.x + (direction < 0 ? -40 : this.width - 20)) + "px";
+        fireball.style.width = (60 * this.scale) + "px";
+        fireball.style.height = (60 * this.scale) + "px";
+        fireball.style.backgroundSize = (720 * this.scale) + "px " + (60 * this.scale) + "px";
+        fireball.style.backgroundPosition = (-600 * this.scale) + "px 0px";
+        fireball.style.top = (this.y + 45 * this.scale) + "px";
+        fireball.style.left = (this.x + (direction < 0 ? -40 : this.width - 20 * this.scale)) + "px";
         
         this.fireball_shot(fireball, target, direction);
     }
@@ -139,7 +158,7 @@ class Wizard {
     fireball_shot(fireball, target, direction){
         var stage = document.getElementById("stage");
         var shot = setInterval(() => {
-            var leftPos = fireball.offsetLeft + 4 * direction;
+            var leftPos = fireball.offsetLeft + 4 * this.scale * direction;
             fireball.style.left = leftPos + 'px';
             fireball.x = leftPos;
             fireball.y = fireball.offsetTop;

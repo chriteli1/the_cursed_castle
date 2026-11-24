@@ -1,3 +1,13 @@
+function getSceneScale(stage) {
+    return Math.max(stage.clientWidth / 1366, stage.clientHeight / 768);
+}
+
+function getGroundY(stage) {
+    // The ground line is at y=724 in the 1366x768 background image.
+    var backgroundGroundOffset = (768 - 724) * getSceneScale(stage);
+    return stage.clientHeight - backgroundGroundOffset;
+}
+
 function collision_check(entity1, entity2) {
     return (
         entity1.x < entity2.x + entity2.width &&
@@ -14,7 +24,11 @@ function showGameMessage(message) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    var knight = new Knight([535, 20]);
+    var stage = document.getElementById("stage");
+    var sceneScale = getSceneScale(stage);
+    var groundY = getGroundY(stage);
+    var knight = new Knight([groundY - 75 * sceneScale, stage.clientWidth * 0.02]);
+    knight.setScale(sceneScale);
     var enemies = [];
     var gameEnded = false;
 
@@ -57,8 +71,35 @@ document.addEventListener("DOMContentLoaded", () => {
         if (knight.j && !knight.on_air && !knight.jumped) knight.jump();
     }, 100);
 
-    var wizard1 = new Wizard(6, "wizard1", [480, 600]);
+    var wizard1 = new Wizard(6, "wizard1", [groundY - 113 * sceneScale, stage.clientWidth * 0.45]);
+    wizard1.setScale(sceneScale);
     enemies.push(wizard1);
+    var previousStageWidth = stage.clientWidth;
+    var previousStageHeight = stage.clientHeight;
+    var resizeStage = () => {
+        if (stage.clientWidth === previousStageWidth && stage.clientHeight === previousStageHeight) return;
+
+        var nextSceneScale = getSceneScale(stage);
+        var nextGroundY = getGroundY(stage);
+        var knightGroundOffset = knight.y + 75 * sceneScale - groundY;
+        var widthScale = stage.clientWidth / previousStageWidth;
+        var knightLeft = Math.max(0, Math.min(stage.clientWidth - 80 * nextSceneScale, knight.x * widthScale));
+        var wizardLeft = Math.max(0, Math.min(stage.clientWidth - 130 * nextSceneScale, wizard1.x * widthScale));
+
+        knight.setScale(nextSceneScale);
+        wizard1.setScale(nextSceneScale);
+        knight.knight.style.left = knightLeft + "px";
+        knight.knight.style.top = (nextGroundY - 75 * nextSceneScale + knightGroundOffset * (nextSceneScale / sceneScale)) + "px";
+        wizard1.html_entity.style.left = wizardLeft + "px";
+        wizard1.html_entity.style.top = (nextGroundY - 113 * nextSceneScale) + "px";
+        sceneScale = nextSceneScale;
+        groundY = nextGroundY;
+        previousStageWidth = stage.clientWidth;
+        previousStageHeight = stage.clientHeight;
+    };
+    window.addEventListener("resize", resizeStage);
+    new ResizeObserver(resizeStage).observe(stage);
+
     var wizardStanding = setInterval(() => {
         if (!wizard1.dead && !wizard1.moving && !wizard1.attacking) wizard1.standing();
     }, 180);
@@ -88,11 +129,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (now >= nextRelativeMoveAt) {
             nextRelativeMoveAt = now + 5000;
-            if (absoluteDistance > 400) relativeMoveUntil = now + 1200;
+            if (absoluteDistance > 400 * sceneScale) relativeMoveUntil = now + 1200;
         }
 
         var moveDirection = patrolDirection;
-        if (now < relativeMoveUntil && absoluteDistance > 220) {
+        if (now < relativeMoveUntil && absoluteDistance > 220 * sceneScale) {
             moveDirection = distance < 0 ? -1 : 1;
         } else {
             relativeMoveUntil = 0;
@@ -101,7 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
         wizard1.moving = true;
         wizard1.move(moveDirection < 0 ? "l" : "r");
 
-        if (absoluteDistance < 700 && wizardAttackReady) {
+        if (absoluteDistance < 700 * sceneScale && wizardAttackReady) {
             wizardAttackReady = false;
             wizard1.attack(knight);
             setTimeout(() => {

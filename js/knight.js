@@ -9,15 +9,18 @@ class Knight{
         this.blocking = false;
         this.dead = false;
 
-        this.speed = 6, //walking speed
-        this.jump_speed = 9; //jumping speed
+        this.baseSpeed = 6;
+        this.baseJumpSpeed = 9;
+        this.scale = 1;
+        this.speed = this.baseSpeed;
+        this.jump_speed = this.baseJumpSpeed;
 
         this.on_air = false; //flag to check if player is already jumping
         this.jumped = false; //flag to check if a jump occured already in a keypress
 
         //variables for "animate" method
         this.bg_position = 0;
-        this.bg_increment = 80,
+        this.bg_increment = 80;
         this.bg_offset = 0;
 
         //"spawn" entity
@@ -50,6 +53,19 @@ class Knight{
     get width() { return this.knight.offsetWidth; }
     get height() { return this.knight.offsetHeight; }
 
+    setScale(scale){
+        this.scale = scale;
+        this.speed = this.baseSpeed * scale;
+        this.jump_speed = this.baseJumpSpeed * scale;
+        this.bg_increment = 80 * scale;
+        this.bg_position = 0;
+        this.knight.style.width = (80 * scale) + "px";
+        this.knight.style.height = (80 * scale) + "px";
+        this.health_bar.style.top = (-16 * scale) + "px";
+        this.health_bar.style.height = (9 * scale) + "px";
+        this.health_bar.style.borderWidth = scale + "px";
+    }
+
     updateHealthBar(){
         this.health_fill.style.width = (this.health / this.maxHealth * 100) + "%";
     }
@@ -58,6 +74,7 @@ class Knight{
     animate(sprite_num, once_flag){ 
 
         // console.log(bg_position);
+        this.knight.style.backgroundSize = "auto 100%";
         this.knight.style.backgroundPosition = -(this.bg_position + 4*this.bg_offset) + "px -" + this.bg_offset + "px";
         
         if (this.bg_position < (sprite_num-1)*this.bg_increment)this.bg_position = this.bg_position + this.bg_increment;
@@ -111,7 +128,7 @@ class Knight{
 
         var jump_speed = this.jump_speed;
 
-        var acceleration = 0.85, 
+        var acceleration = 0.85 * this.scale,
         direction = -1; //it's negative because the position is relative to the top (jumping=getting closer to the top) 
 
         var topPos;
@@ -184,10 +201,10 @@ class Knight{
             attackFrame++;
             if (attackFrame === 5) {
                 var hitbox = {
-                    x: this.facing === "r" ? this.x + this.width - 10 : this.x - 50,
-                    y: this.y + 10,
-                    width: 60,
-                    height: this.height - 20
+                    x: this.facing === "r" ? this.x + this.width - 10 * this.scale : this.x - 50 * this.scale,
+                    y: this.y + 10 * this.scale,
+                    width: 60 * this.scale,
+                    height: this.height - 20 * this.scale
                 };
                 for (let i = 0; i < enemies.length; i++) {
                     if (!enemies[i].dead && collision_check(hitbox, enemies[i])) {
